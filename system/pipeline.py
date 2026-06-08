@@ -179,9 +179,12 @@ def main():
     parser.add_argument("--dry-run",  action="store_true",   help="Skip API calls")
     args = parser.parse_args()
 
-    if not os.environ.get("ANTHROPIC_API_KEY") and args.mode in ("rewrite", "evaluate", "all"):
-        print("ERROR: ANTHROPIC_API_KEY environment variable not set.")
-        sys.exit(1)
+    if args.mode in ("rewrite", "evaluate", "all"):
+        provider = os.environ.get("LLM_PROVIDER", "anthropic")
+        key_var  = "ANTHROPIC_API_KEY" if provider == "anthropic" else "OPENAI_API_KEY"
+        if not os.environ.get(key_var):
+            print(f"ERROR: {key_var} not set. See .env.example for setup instructions.")
+            sys.exit(1)
 
     df = pd.read_csv(ROOT / "data" / "deals.csv")
     print(f"Loaded {len(df)} deals  |  mode={args.mode}  |  {datetime.now():%Y-%m-%d %H:%M}")

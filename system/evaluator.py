@@ -25,14 +25,10 @@ import pandas as pd
 from pathlib import Path
 from typing import Literal
 
-import anthropic
-
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
-from scorer import score_deal
-
-CLIENT = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-MODEL  = "claude-haiku-4-5-20251001"  # haiku for eval — cheaper, fast
+from scorer     import score_deal
+from llm_client import get_client
 
 
 # ── Signal 1: Scorer delta ────────────────────────────────────────────────────
@@ -187,13 +183,9 @@ def eval_llm_judge(row: pd.Series, new_title: str, new_desc: str) -> dict:
         b_label=b_label, b_title=b_title, b_desc=b_desc,
     )
 
-    response = CLIENT.messages.create(
-        model=MODEL,
-        max_tokens=200,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = response.content[0].text.strip()
+    client   = get_client()
+    response = client.complete("", prompt, max_tokens=200, cache_system=False)
+    raw = response.content.strip()
     raw = re.sub(r"^```(?:json)?\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
     parsed = json.loads(raw)

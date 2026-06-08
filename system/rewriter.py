@@ -18,14 +18,10 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-import anthropic
-
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
-from scorer import score_deal, score_all
-
-CLIENT = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-MODEL  = "claude-sonnet-4-6"
+from scorer     import score_deal, score_all
+from llm_client import get_client
 
 # ── Few-shot examples (pulled from high-CVR deals in dataset) ─────────────────
 # Selected: one per major category, all CVR > 0.08, all structured descriptions
@@ -187,43 +183,30 @@ Output JSON only."""
 
 
 def rewrite_deal(row: pd.Series) -> dict:
-    """Call Claude to rewrite a single deal. Returns result dict."""
+    """Call LLM to rewrite a single deal. Returns result dict."""
+    client = get_client()
     system = build_system_prompt()
     user   = build_user_message(row)
 
-    response = CLIENT.messages.create(
-        model=MODEL,
-        max_tokens=1024,
-        system=[
-            {
-                "type": "text",
-                "text": system,
-                "cache_control": {"type": "ephemeral"},  # cache system prompt across batch
-            }
-        ],
-        messages=[{"role": "user", "content": user}],
-    )
+    response = client.complete(system, user, max_tokens=1024, cache_system=True)
 
-    raw = response.content[0].text.strip()
-
-    # Strip markdown code fences if model wraps output
+    raw = response.content.strip()
     raw = re.sub(r"^```(?:json)?\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
 
     parsed = json.loads(raw)
 
     return {
-        "deal_id":           row["deal_id"],
-        "original_title":    row["title"],
-        "original_desc":     row["description"],
-        "new_title":         parsed["title"],
-        "new_desc":          parsed["description"],
-        "rationale":         parsed.get("rationale", ""),
+        "deal_id":        row["deal_id"],
+        "original_title": row["title"],
+        "original_desc":  row["description"],
+        "new_title":      parsed["title"],
+        "new_desc":       parsed["description"],
+        "rationale":      parsed.get("rationale", ""),
         "usage": {
-            "input_tokens":        response.usage.input_tokens,
-            "output_tokens":       response.usage.output_tokens,
-            "cache_read_tokens":   getattr(response.usage, "cache_read_input_tokens", 0),
-            "cache_create_tokens": getattr(response.usage, "cache_creation_input_tokens", 0),
+            "input_tokens":      response.input_tokens,
+            "output_tokens":     response.output_tokens,
+            "cache_read_tokens": response.cache_read_tokens,
         },
     }
 
