@@ -98,8 +98,11 @@ git clone https://github.com/radekhampl-staff/groupon-content-that-converts.git
 cd groupon-content-that-converts
 pip install -r requirements.txt
 
+# Pick your LLM provider — Anthropic or OpenAI, either works:
 export ANTHROPIC_API_KEY=your_key
-# or: export LLM_PROVIDER=openai && export OPENAI_API_KEY=your_key
+# — or —
+# export LLM_PROVIDER=openai
+# export OPENAI_API_KEY=your_key
 
 streamlit run app.py
 ```
