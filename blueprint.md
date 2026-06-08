@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-100 FTE write, vet, and edit Groupon deal content optimizing for throughput. Nobody measures whether content converts. There is no feedback loop between what gets written and what gets bought.
+100 FTE write, vet, and edit deal content optimizing for throughput. Nobody measures whether content converts. There is no feedback loop between what gets written and what gets bought.
 
 Analysis of 500 deals shows a clear, exploitable gap: structured descriptions convert **101% better** than generic templates. Combined content score (0→4) yields **+280% CVR**. The writing quality is the variable — not discount percentage, not category, not city.
 
@@ -29,18 +29,28 @@ deals.csv
 SCORER (scorer.py)          — rule-based, ~0ms/deal, r=0.644 vs CVR
     │ deals below threshold (score < 60)
     ▼
-REWRITER (rewriter.py)      — Claude claude-sonnet-4-6, prompt-cached system prompt
-    │                          prioritized by: total_views × CVR gap from category median
+REWRITER (rewriter.py)      — configurable LLM provider (Anthropic, OpenAI, …), prompt-cached system prompt
+    │  or                      prioritized by: total_views × CVR gap from category median
+GENERATOR (generator.py)    — creates copy from scratch for new deals (no existing title/description needed)
+    │
+    ▼
+SEO PASS (seo.py)           — separate LLM call: keyword placement in title + opening sentence only
+    │                          does not restructure body or invent new facts
     ▼
 EVALUATOR (evaluator.py)    — 4 independent signals, no single LLM self-judge:
     │   1. scorer_delta      rule-based: did score improve?
     │   2. specificity       heuristic: concrete nouns added, filler removed?
     │   3. hallucination     regex: no claims outside source fields?
-    │   4. llm_judge         blind A/B via claude-haiku (cheap, randomized order)
+    │   4. llm_judge         blind A/B via configurable LLM (cheap model, randomized order)
     │
-    ├── APPROVE → publish directly
+    ├── APPROVE → publish directly (English) or route to TRANSLATOR
     ├── FLAG    → human reviews (15–30 min/week total)
     └── REJECT  → log + discard
+
+TRANSLATOR (translator.py)  — translates approved copy into active market languages (DE, FR, IT, ES, NL, PL)
+                               Markets: DE (German), FR (French), IT (Italian), ES (Spanish),
+                                        NL (Dutch), PL (Polish) — English markets are a no-op
+                               Preserves merchant names, conversion structure, and fine print
 ```
 
 ---
@@ -122,9 +132,11 @@ Content strategists (2 FTE) watch which rewrites consistently win or lose per ca
 | Item | Volume | Cost |
 |---|---|---|
 | Scoring | 500 deals/week | ~$0 (rule-based) |
-| Rewriting (claude-sonnet-4-6 with caching) | 50 rewrites/week × ~1,200 tokens output | ~$3/week |
-| Evaluating (claude-haiku for judge signal) | 50 evals/week × ~300 tokens | ~$0.10/week |
-| **Total API cost** | | **< $5/week** |
+| Rewriting / Generating (LLM with caching) | 50 deals/week × ~1,200 tokens output | ~$3/week |
+| SEO pass (separate LLM call) | 50 deals/week × ~400 tokens output | ~$1/week |
+| Evaluating (cheap LLM for judge signal) | 50 evals/week × ~300 tokens | ~$0.10/week |
+| Translation (6 markets × 50 deals/week) | 300 calls × ~600 tokens output | ~$4/week |
+| **Total API cost** | | **< $10/week** |
 | **FTE cost saved** | 95 FTE × ~$60k/yr avg | **~$5.7M/year** |
 
 Even at 10× API cost overrun, the economics are not close.

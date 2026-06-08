@@ -1,6 +1,6 @@
-# Groupon — Content That Converts
+# Content That Converts
 
-Automated system that scores, rewrites, and evaluates Groupon deal content.
+Automated system that scores, rewrites, and evaluates deal content to increase conversion rate.
 Replaces manual copywriting at scale — designed to go from 100 FTE to 5 FTE.
 
 ## Key Finding
@@ -22,7 +22,7 @@ generic templates by **+101% CVR** — consistent across all 8 categories and 15
 
 ```bash
 git clone <repo>
-cd groupon-content-that-converts
+cd content-that-converts
 pip install -r requirements.txt
 
 # Pick your LLM provider — Anthropic or OpenAI, either works:
@@ -87,7 +87,7 @@ Override any model with `LLM_MODEL=<model-name>`.
 │   ├── generator.py           # Creates copy from scratch for new deals
 │   ├── seo.py                 # SEO keyword-placement pass (runs after rewrite/generate)
 │   ├── evaluator.py           # Multi-signal evaluator (scorer delta + hallucination + LLM judge)
-│   ├── translator.py          # Translates approved copy into Groupon market languages
+│   ├── translator.py          # Translates approved copy into market languages (DE, FR, IT, ES, NL, PL)
 │   ├── pipeline.py            # CLI pipeline (score → rewrite → evaluate → report)
 │   ├── llm_client.py          # Provider-agnostic LLM client (Anthropic / OpenAI)
 │   └── validator.py           # CSV / DataFrame validation with tiered capability detection

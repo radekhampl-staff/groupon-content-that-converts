@@ -1,6 +1,6 @@
 # Submission — Content That Converts
 
-Repo: https://github.com/radekhampl-staff/groupon-content-that-converts
+Repo: https://github.com/radekhampl-staff/content-that-converts
 
 ---
 
@@ -36,7 +36,7 @@ Category-by-category, the lift ranges from +74% (Retail) to +144% (Health & Fitn
 Generic title patterns ("Amazing X at Y", "Best X at Y", "Incredible X at Y") underperform specific titles by 71%. Among the top 20 highest-CVR deals in the dataset: 20/20 have structured descriptions and 20/20 have specific titles. Not a single top performer uses a generic template.
 
 **Discount percentage has almost no signal (r = 0.076).**
-This is the counter-intuitive finding. Groupon's product is built around discounts, but deeper discounts don't meaningfully predict conversion. Content quality does. A deal at 30% off with great copy converts better than a deal at 70% off with generic filler.
+This is the counter-intuitive finding. The product is built around discounts, but deeper discounts don't meaningfully predict conversion. Content quality does. A deal at 30% off with great copy converts better than a deal at 70% off with generic filler.
 
 **Combined content score: 0→4 = +280% CVR.**
 Combining four binary signals (structured description, specific title, descriptive option names, image quality ≥ 4) into a 0–4 score:
@@ -94,8 +94,8 @@ The scorer (r = 0.644 vs CVR) doesn't use the LLM at all — it's rule-based pat
 ### Running it
 
 ```bash
-git clone https://github.com/radekhampl-staff/groupon-content-that-converts.git
-cd groupon-content-that-converts
+git clone https://github.com/radekhampl-staff/content-that-converts.git
+cd content-that-converts
 pip install -r requirements.txt
 
 # Pick your LLM provider — Anthropic or OpenAI, either works:
@@ -159,7 +159,7 @@ Four things in the repo weren't in the assignment. Brief explanation of each:
 
 **SEO pass as a separate step** — during rewriter development it became clear that SEO and CVR optimization pull in opposite directions. Combining them in one prompt produces compromise copy. Keeping them separate means each step can be reviewed independently, and the SEO layer can be skipped for markets where it's less relevant.
 
-**Translation into 6 Groupon markets** — German, French, Italian, Spanish, Dutch, Polish. Once approved copy exists, translation costs one LLM call per market. English markets (US, UK, CA, AU, IE) are skipped automatically.
+**Translation into 6 markets** — German, French, Italian, Spanish, Dutch, Polish. Once approved copy exists, translation costs one LLM call per market. English markets (US, UK, CA, AU, IE) are skipped automatically.
 
 **Generator for new deals** — the brief focused on rewriting existing deals. The same patterns should apply to copy written from scratch. The generator is a standalone tool, not integrated into the weekly pipeline, so it doesn't add complexity to the core flow.
 

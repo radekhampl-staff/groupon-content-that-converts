@@ -1,12 +1,20 @@
 """
-End-to-end batch pipeline.
+CLI pipeline — score, rewrite, evaluate, report.
+
+The primary operator interface is the Streamlit dashboard (app.py at project root).
+This script is the CLI equivalent for automation, scripting, or headless environments.
 
 Modes:
-  score    — score all 500 deals, save results/scores.csv
-  rewrite  — rewrite bottom-N priority deals (calls Claude API)
-  evaluate — evaluate all existing rewrites (calls Claude API for judge)
+  score    — score all deals, save results/scores.csv
+  rewrite  — rewrite bottom-N priority deals (calls LLM API)
+  evaluate — evaluate all existing rewrites (calls LLM API for judge)
   report   — print summary of all eval results (no API calls)
   all      — score → rewrite → evaluate in one shot
+
+Related standalone tools (run separately after rewrite/generate):
+  seo.py        — SEO keyword-placement pass on a single rewrite or generated deal
+  generator.py  — create copy from scratch for a new deal (no existing title/description needed)
+  translator.py — translate approved copy into DE, FR, IT, ES, NL, PL
 
 Usage:
   python pipeline.py --mode score
@@ -172,7 +180,7 @@ def run_report() -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Groupon content pipeline")
+    parser = argparse.ArgumentParser(description="deal content pipeline")
     parser.add_argument("--mode", choices=["score", "rewrite", "evaluate", "report", "all"],
                         required=True)
     parser.add_argument("--n",        type=int,  default=10, help="Deals to rewrite (rewrite mode)")

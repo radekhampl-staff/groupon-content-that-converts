@@ -115,7 +115,7 @@ AFTER description:
 {ex['description_after']}
 ---"""
 
-    return f"""You are a conversion-rate-focused copywriter for Groupon deal pages.
+    return f"""You are a conversion-rate-focused copywriter for deal pages.
 
 ## Your task
 Rewrite a deal's title and description to increase conversion rate.
@@ -158,6 +158,16 @@ Rewrite a deal's title and description to increase conversion rate.
 """
 
 
+def _discount_str(row: pd.Series) -> str:
+    if "discount_pct" in row.index and pd.notna(row["discount_pct"]):
+        return f"{int(float(row['discount_pct']) * 100)}%"
+    try:
+        pct = round((1 - float(row["price"]) / float(row["value"])) * 100)
+        return f"{pct}%"
+    except Exception:
+        return "n/a"
+
+
 def build_user_message(row: pd.Series) -> str:
     return f"""Rewrite this deal's title and description.
 
@@ -166,7 +176,7 @@ DEAL FIELDS:
 - category: {row['category']} / {row['subcategory']}
 - geo: {row['geo']}
 - merchant_name: {row['merchant_name']}
-- price: {row['price']} (value: {row['value']}, discount: {int(row['discount_pct']*100)}%)
+- price: {row['price']} (value: {row['value']}, discount: {_discount_str(row)})
 - num_options: {row['num_options']}
 - option_names: {row['option_names']}
 

@@ -1,6 +1,14 @@
 pandas>=2.0.0
 numpy>=1.24.0
+streamlit>=1.35.0
+sqlalchemy>=2.0.0
 
 # Install ONE of the following depending on your LLM provider:
 anthropic>=0.40.0      # for LLM_PROVIDER=anthropic (default)
 # openai>=1.30.0       # for LLM_PROVIDER=openai
+
+# Optional — needed only if connecting via database:
+# psycopg2-binary      # PostgreSQL
+# pymysql              # MySQL
+# sqlalchemy-bigquery  # BigQuery
+# snowflake-sqlalchemy # Snowflake

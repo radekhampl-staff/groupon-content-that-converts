@@ -145,7 +145,7 @@ def eval_hallucination(source_text: str, new_desc: str, new_title: str) -> dict:
 
 # ── Signal 4: LLM blind A/B judge ─────────────────────────────────────────────
 
-JUDGE_PROMPT = """You are evaluating two versions of a Groupon deal listing.
+JUDGE_PROMPT = """You are evaluating two versions of a deal listing.
 
 Category: {category}
 Merchant: {merchant_name}
